@@ -1,0 +1,13 @@
+// Each #kernel tells which function to compile; you can have many kernels
+Texture2D<float4> image;  // The Mask
+float4 reference; // Color reference
+RWStructuredBuffer<uint> compute_buffer; //buffer
+ 
+#pragma kernel CSMain
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+   if (all(reference ==image[id.xy])) {
+      InterlockedAdd(compute_buffer[0], 1);
+   }
+}
