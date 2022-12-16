@@ -71,6 +71,7 @@ public class TexturePainter
     public void SetBrushColor(Color color)
     {
         brushColor = color;
+        drawMaterial.SetVector("_Color", brushColor);
     }
     
     /// <summary>
