@@ -64,6 +64,39 @@ public class TexturePainter
         Graphics.Blit(temp, splatMap, drawMaterial);
         RenderTexture.ReleaseTemporary(temp);
     }
+
+    public void SetCurrentMaterial(Material mat)
+    {
+        currentMaterial = mat;
+        Initialize(brushColor);
+    }
+
+    public void SetTexture(string textureName, Texture2D texture)
+    {
+        currentMaterial.SetTexture(textureName, texture);
+    }
+    /// <summary>
+    /// Paints given texture with initialized default color. 
+    /// </summary>
+    /// <param name="textureCoord">Texture coordinates on Vector2 to paint texture.</param>
+    /// <param name="_brushColor">Paint brush color value.</param>
+    public void Paint(Vector2 textureCoord, Color _brushColor)
+    {
+        if (!isInitialized)
+        {
+            Initialize();
+            Debug.LogWarning("TexturePainter automatic initialized. You should initialize the TexturePainter before use (on Start/Awake).");
+        }
+        drawMaterial.SetVector("_Color", _brushColor);
+        drawMaterial.SetVector("_Coordinates", new Vector4(textureCoord.x, textureCoord.y, 0, 0));
+        drawMaterial.SetFloat("_Strength", brushStrength);
+        drawMaterial.SetFloat("_Size", brushSize);
+        RenderTexture temp = RenderTexture.GetTemporary(splatMap.width, splatMap.height, 0,
+            RenderTextureFormat.ARGBFloat);
+        Graphics.Blit(splatMap, temp);
+        Graphics.Blit(temp, splatMap, drawMaterial);
+        RenderTexture.ReleaseTemporary(temp);
+    }
     /// <summary>
     /// Sets the brushColor. Give white for full transparency.
     /// </summary>
@@ -71,6 +104,9 @@ public class TexturePainter
     public void SetBrushColor(Color color)
     {
         brushColor = color;
+        drawMaterial.SetFloat("_Strength", brushStrength);
+        drawMaterial.SetFloat("_Size", brushSize);
+        drawMaterial.SetVector("_Color", color);
     }
     
     /// <summary>
@@ -81,6 +117,7 @@ public class TexturePainter
     {
         val = Mathf.Clamp(val, 1, 500);
         brushSize = val;
+        drawMaterial.SetFloat("_Size", brushSize);
     }
     /// <summary>
     /// Sets the brush strength.
@@ -90,6 +127,7 @@ public class TexturePainter
     {
         val = Mathf.Clamp01(val);
         brushStrength = val;
+        drawMaterial.SetFloat("_Strength", brushStrength);
     }
     
     /// <summary>
@@ -107,7 +145,7 @@ public class TexturePainter
     /// <param name="fullTextureFillRatio">Ratio of the entire visible part of the texture.
     /// When the visible part is full, the value is given to make the ratio 100%. Default is 1.</param>
     /// <returns>Given colors' paint ratio.</returns>
-    public float GetPercent(Color color, int fullTextureFillRatio = 1)
+    public float GetPercent(Color color, float fullTextureFillRatio = 1)
     {
         return histogramCreator.GetPercentOfColor(color, fullTextureFillRatio);
     }

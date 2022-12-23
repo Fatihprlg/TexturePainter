@@ -29,4 +29,9 @@ public class PainterControl : MonoBehaviour
             }
         }
     }
+
+    private void OnDestroy()
+    {
+        _painter.OnDestroy();
+    }
 }
